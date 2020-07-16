@@ -1,0 +1,281 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-curator-cm
+data:
+  elasticsearch_host: localhost
+  elasticsearch_port: 9200
+  pattern: '^(metric|heart|file)beat-.*'
+  unit_count:  13
+
+---
+
+api: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: elasticsearch-curator-deployment
+spec:
+  replicas: 1
+  revisionHistoryLimit: 1
+  minReadySeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      service: elasticsearch-curator
+  template:
+    metadata:
+      labels:
+        app: elasticsearch-curator
+        service: elasticsearch-curator  #labels for the pods e.g kubectl get pod -l "service in (http-server)"
+        version: 0.0.1
+    spec:
+      containers:
+      - name: elasticsearch-curator
+        image: rdeep527/curator:1.1 #private Docker registry
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8080
+            name: my-http
+        resources:
+          limits:
+            cpu: '6'
+            memory: 8Gi
+          requests:
+            cpu: '4'
+            memory: 4Gi
+        env:
+        - name: ELASTICSEARCH_HOST
+          valueFrom:
+            configMapKeyRef:
+                    name::
+              key: bank-oauth.env
+        - name: MIDDLEWARE_BANKOAUTH_JWTOAUTH_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_jwtoauth_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_MYSQL_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_mysql_username
+        - name: MIDDLEWARE_BANKOAUTH_MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_mysql_password
+        - name: NEWRELIC_LICENSE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: newrelic-secret
+              key: newrelic_license_key
+        - name: MIDDLEWARE_PAYOUT_OAUTH_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: payout-service-secret
+              key: middleware_payout_oauth_client_id
+        - name: MIDDLEWARE_BANKOAUTH_JWTBOP_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_jwtbop_secretkey
+        - name: MIDDLEWARE_BANK_AUTH_JWTPASS_CLIENT_ID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bank_auth_jwtpass_client_id
+        - name: MIDDLEWARE_BANK_AUTH_JWTPASS_CLIENT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bank_auth_jwtpass_client_secret
+        - name: MIDDLEWARE_BANKOAUTH_RSAANDROID_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsaandroid_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_RSAIOS_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsaios_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_oauthconfig_clientid
+        - name: MIDDLEWARE_BANKOAUTH_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_oauthconfig_clientsecret
+        - name: MIDDLEWARE_BANKOAUTH_JWTPASS_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: middleware-passgateway-secret
+              key: middleware_epi_oauth_jwt_secret_key
+        - name: MIDDLEWARE_BANKOAUTH_RSAWEB_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsaweb_secretkey
+        - name: MIDDLEWARE_BANKWEB_BANKAUTHCONFIG_PASSCODEKEY
+          valueFrom:
+            secretKeyRef:
+              name: middleware-bankweb-secret
+              key: middleware_bankweb_bankauthconfig_passcodekey
+        - name: MIDDLEWARE_BANKOAUTH_RSAVERIFIER_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsaverifier_secretkey
+        - name: MIDDLEWARE_NOTIFICATION_JWTBANK_OAUTH_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: notification-service-secret
+              key: middleware_notification_jwtbank_oauth_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_KYC_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: batchoperations-service-secret
+              key: middleware_batchoperations_kyc_secret_key
+        - name: MIDDLEWARE_BANKOAUTH_JWTVERIFIER_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_jwtverifier_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_KYC_SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: batchoperations-service-secret
+              key: middleware_batchoperations_kyc_secret_key
+        - name: MIDDLEWARE_BANKOAUTH_CHALLENGE_INIT_USER
+          valueFrom:
+            secretKeyRef:
+              name: middleware-challenge-secret
+              key: middleware_challenge_init_user
+        - name: MIDDLEWARE_BANKOAUTH_CHALLENGE_INIT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: middleware-challenge-secret
+              key: middleware_challenge_init_password
+        - name: MIDDLEWARE_BANKOAUTH_RSAWRP_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsawrp_secretkey
+        - name: MIDDLEWARE_BANKOAUTH_PRODUCT_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_product_clientid
+        - name: MIDDLEWARE_BANKOAUTH_PRODUCT_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_product_clientsecret
+        - name: MIDDLEWARE_BANKOAUTH_OTP_SERVICE_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_otp_service_clientid
+        - name: MIDDLEWARE_BANKOAUTH_OTP_SERVICE_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_otp_service_clientsecret
+        - name: MIDDLEWARE_BANKOAUTH_SYMMETRIC_ENCRYPTION_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_symmetric_encryption_secret
+        - name: MIDDLEWARE_NETWORK_PROXY_HOST
+          valueFrom:
+            secretKeyRef:
+              name: ctrls-proxy-secret
+              key: proxy_host
+        - name: MIDDLEWARE_NETWORK_PROXY_PORT
+          valueFrom:
+            secretKeyRef:
+              name: ctrls-proxy-secret
+              key: proxy_port
+        - name: MIDDLEWARE_BANKOAUTH_RSAS2S_SECRETKEY
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bankoauth_rsas2s_secretkey
+        - name: MIDDLEWARE_WEBREMITTANCE_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: middleware-webremittance-secret
+              key: middleware_webremittance_oauthconfig_clientid
+        - name: MIDDLEWARE_WEBREMITTANCE_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: middleware-webremittance-secret
+              key: middleware_webremittance_oauthconfig_clientsecret
+        - name: MIDDLEWARE_BOP_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bop-service-secret
+              key: middleware_bop_oauthconfig_clientid
+        - name: MIDDLEWARE_BOP_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bop-service-secret
+              key: middleware_bop_oauthconfig_clientsecret
+        - name: MIDDLEWARE_BCAPP_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bcapp_oauthconfig_clientid
+        - name: MIDDLEWARE_BCAPP_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_bcapp_oauthconfig_clientsecret
+        - name: MIDDLEWARE_OEFE_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_oefe_oauthconfig_clientid
+        - name: MIDDLEWARE_OEFE_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_oefe_oauthconfig_clientsecret
+        - name: MIDDLEWARE_DIYFE_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_diyfe_oauthconfig_clientid
+        - name: MIDDLEWARE_DIYFE_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_diyfe_oauthconfig_clientsecret
+        - name: MIDDLEWARE_BANKWEB_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: middleware-bankweb-secret
+              key: middleware_bankweb_oauthconfig_clientid
+        - name: MIDDLEWARE_BANKWEB_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: middleware-bankweb-secret
+              key: middleware_bankweb_oauthconfig_clientsecret
+        - name: MIDDLEWARE_KYCP_OAUTHCONFIG_CLIENTID
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_kycp_oauthconfig_clientid
+        - name: MIDDLEWARE_KYCP_OAUTHCONFIG_CLIENTSECRET
+          valueFrom:
+            secretKeyRef:
+              name: bank-oauth-secret
+              key: middleware_kycp_oauthconfig_clientsecret
+
