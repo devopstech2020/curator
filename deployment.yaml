@@ -35,7 +35,7 @@ spec:
     spec:
       containers:
       - name: elasticsearch-curator
-        image: rdeep527/curator:1.1 #private Docker registry
+        image: docker.io/hardeep527/curator:latest #private Docker registry
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 8080

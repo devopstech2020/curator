@@ -10,10 +10,10 @@ actions:
     filters:
     - filtertype: pattern
       kind: regex
-      value: $pattern
+      value: change_pattern
     - filtertype: age
       source: name
       direction: older
       timestring: '%Y.%m.%d'
       unit: months
-      unit_count: $unit_count
+      unit_count: change_unitcount
