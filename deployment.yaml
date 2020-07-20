@@ -3,14 +3,14 @@ kind: ConfigMap
 metadata:
   name: elasticsearch-curator-cm
 data:
-  elasticsearch_host: 'localhost'
+  elasticsearch_host: '35.223.189.138'
   elasticsearch_port: '9200'
   pattern: '^(metric|heart|file)beat-.*'
   unit_count:  '13'
 
 ---
 
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: elasticsearch-curator-deployment
@@ -35,18 +35,18 @@ spec:
     spec:
       containers:
       - name: elasticsearch-curator
-        image: docker.io/hardeep527/curator:latest #private Docker registry
+        image: docker.io/hardeep527/curator:1.6 #private Docker registry
         imagePullPolicy: IfNotPresent
         ports:
           - containerPort: 8080
             name: my-http
         resources:
           limits:
-            cpu: '6'
-            memory: 8Gi
+            cpu: '1'
+            memory: 1Gi
           requests:
-            cpu: '4'
-            memory: 4Gi
+            cpu: '1'
+            memory: 1Gi
         env:
         - name: ELASTICSEARCH_HOST
           valueFrom:

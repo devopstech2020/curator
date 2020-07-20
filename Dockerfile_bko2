@@ -1,0 +1,10 @@
+FROM alpine:latest
+MAINTAINER Hardeep Singh
+
+RUN apk add --no-cache  python3 py3-pip
+
+RUN pip3 install wheel && pip3 install elasticsearch-curator && \
+     rm -rf /var/cache/apk/*
+
+
+ENTRYPOINT ["/usr/bin/curator"]

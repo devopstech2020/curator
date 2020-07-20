@@ -1,10 +1,16 @@
-from  python:3.8-slim
+FROM alpine:latest
+MAINTAINER Hardeep Singh
 
-RUN pip3 install elasticsearch-curator
+RUN apk add --update \
+    libstdc++ \
+    bash \
+    --no-cache python3 && \
+    python3 -m ensurepip && \
+    rm -r /usr/lib/python*/ensurepip && \
+    pip3 install --upgrade pip setuptools && \
+    pip3 install elasticsearch-curator==4.2.6 && \
+    rm -r /root/.cache 
 
-ADD curator.yaml ./
-ADD delete.yaml ./
-ADD run_script.sh ./
 
-ENTRYPOINT (sed -i 's/change_elasticsearch_host/'"$ELASTICSEARCH_HOST"'/g' curator.yaml) && (sed -i 's/change_elasticsearch_port/'"$ELASTICSEARCH_PORT"'/g' curator.yaml) && (sed -i 's/change_pattern/'"$PATTERN"'/g' delete.yaml) && (sed -i 's/change_unitcount/'"$UNITCOUNT"'/g' delete.yaml) && (curator --config curator.yaml delete.yaml)
 
+ENTRYPOINT ["/usr/bin/curator"]
